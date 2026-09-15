@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from .database import SessionLocal
 from . import crud, auth
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 def get_db():
     db = SessionLocal()
@@ -17,8 +17,10 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     payload = auth.decode_token(token)
     if not payload:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-    user = crud.get_user(db, payload.get("sub"))
+    sub = payload.get("sub")
+    if not sub:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
+    user = crud.get_user(db, int(sub))
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     return user
-
