@@ -1,22 +1,26 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 class UserCreate(BaseModel):
     employee_no: str
     name: str
-    email: EmailStr
     password: str
+    email: Optional[EmailStr] = None
 
 class UserOut(BaseModel):
     id: int
     employee_no: str
     name: str
-    email: EmailStr
+    email: Optional[EmailStr] = None
     role: str
     created_at: datetime
     class Config:
         orm_mode = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
 class ChargeIn(BaseModel):
     user_id: int
@@ -27,6 +31,7 @@ class UseIn(BaseModel):
     user_id: int
     amount: int
     operator_id: Optional[int] = None
+    description: Optional[str] = None
 
 class BalanceOut(BaseModel):
     user_id: int
@@ -34,3 +39,21 @@ class BalanceOut(BaseModel):
     class Config:
         orm_mode = True
 
+class UserListItem(BaseModel):
+    id: int
+    employee_no: str
+    name: str
+    monthly_used: int
+    current_balance: int
+    class Config:
+        orm_mode = True
+
+class TransactionOut(BaseModel):
+    id: int
+    user_id: int
+    amount: int
+    type: str
+    description: Optional[str]
+    created_at: datetime
+    class Config:
+        orm_mode = True
